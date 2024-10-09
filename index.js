@@ -19,7 +19,8 @@ app.use(cors({
         'http://192.168.1.108:3001',
         'http://localhost:3000',
         'http://192.168.0.100:3000',
-        'http://192.168.0.100:3001'
+        'http://192.168.0.101:3000',
+        'http://192.168.17.123:3001'
     ],
     methods: ['GET', 'POST']
 }));
@@ -84,7 +85,7 @@ app.post('/run-puppeteer', async (req, res) => {
         return res.status(400).send({ error: 'Invalid input data' });
     }
 
-    await runPuppeteerScript(req, res);
+await runPuppeteerScript(req, res);
 });
 
 // Start the server

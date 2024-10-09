@@ -130,7 +130,23 @@ class BaseFormHandler {
             throw error; // Re-throw error after logging
         }
     }
+    async  isNetworkError(error) {
+        return ['ECONNABORTED', 'ENOTFOUND', 'EAI_AGAIN', 'ECONNRESET','ERR_CONNECTION_RESET','ERR_CONNECTION_REFUSED'].includes(error.code);
+    }
     
+    async  retry(fn, retries = 3,page) {
+        for (let i = 0; i < retries; i++) {
+            try {
+                return await fn();
+            } catch (error) {
+                if(isNetworkError(error)){
+                    console.error(`Network error occured : ${error.message} ...Error reloading the script `)
+                    await page.reload({waitUntil : 'networkidle0' })
+                }
+                if (i === retries - 1) throw error;
+            }
+        }
+    }
     async  clickLinkByLabel(page, label, maxRetries = 3) {
         let retries = 0;
     
@@ -285,6 +301,27 @@ class BaseFormHandler {
             throw error; // Re-throw the error after logging it
         }
     }
+    async fillInputByName(page, inputName, value) {
+        try {
+            // Wait for the input field to be visible
+            await page.waitForSelector(`input[name="${inputName}"]`, { visible: true });
+    
+            // Click to focus on the input field
+            await page.click(`input[name="${inputName}"]`);
+    
+            // Type each character one by one with a delay
+            for (const char of value) {
+                await page.keyboard.press(char);
+            }
+    
+            console.log(`Filled input field "${inputName}" with value: "${value}"`);
+        } catch (error) {
+            console.error(`Failed to fill input field "${inputName}":`, error.message);
+            throw error; // Re-throw error after logging
+        }
+    }
+
+
     async clickDropdown(page, selector, optionValue) {
         try {
             // Wait for the dropdown to appear and be visible
@@ -293,7 +330,6 @@ class BaseFormHandler {
             // Click on the dropdown to expand the options
             await page.click(selector);
     
-            // Focus the dropdown and simulate typing the option value (to mimic user interaction)
             await page.focus(selector);
             await page.keyboard.type(optionValue);
     

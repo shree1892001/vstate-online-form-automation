@@ -3,18 +3,18 @@ const logger = require('../utils/logger');
 const { json } = require('express');
 const { timeout } = require('puppeteer');
 
-class ColoradoForLLC extends BaseFormHandler {
+class ColoradoForCorp extends BaseFormHandler {
     constructor() {
         super();
     }
-    async ColoradoForLLC(page, jsonData) {
+    async ColoradoForCorp(page, jsonData) {
         try {
             logger.info('Navigating to New York form submission page...');
             const url = jsonData.data.State.stateUrl;
             await this.navigateToPage(page, url);
-            const linkSelector = 'a[href="#LLC"]';
-            await page.waitForSelector('td > a[href="helpFiles/LLCintro.html"]', { visible: true, timeout: 60000 });
-            await page.click('td > a[href="helpFiles/LLCintro.html"]');
+            const linkSelector = 'a[href="#Profit"]';
+            await page.waitForSelector('td > a[href="helpFiles/ProfitCorpintro.html"]', { visible: true, timeout: 60000 });
+            await page.click('td > a[href="helpFiles/ProfitCorpintro.html"]');
             await this.clickButton(page, '.w3-btn-next');
             const inputFields = [
                 { label: 'name', value: jsonData.data.Payload.Name.CD_Legal_Name }
@@ -121,28 +121,9 @@ class ColoradoForLLC extends BaseFormHandler {
 
                 await page.click("#saveNextId");
 
-                await page.waitForSelector('input[type="radio"][name="managedBy"]');
+             
 
-                // Check the checkbox
-                await page.evaluate(() => {
-                  const checkbox = document.querySelector('input[type="radio"][name="managedBy"]');
-                  if (!checkbox.checked) {
-                    checkbox.click();
-                  }
-                });
-
-                await page.waitForSelector('input[type="radio"][name="hasOneMember"]');
-
-                // Check the checkbox
-                await page.evaluate(() => {
-                  const checkbox = document.querySelector('input[type="radio"][name="hasOneMember"]');
-                  if (!checkbox.checked) {
-                    checkbox.click();
-                  }
-                });
-
-
-                await this.clickButton(page, '.w3-btn-next');
+               
 
 
                 await page.waitForSelector('input[type="radio"][name="personTyp"]');
@@ -193,11 +174,40 @@ class ColoradoForLLC extends BaseFormHandler {
              
               await page.click(".w3-btn-next"); // Replace with your next action
               
-              await page.click(".w3-btn-next"); // Replace with your next action
-              await page.click(".w3-btn-next");
-              
+              // await page.click(".w3-btn-next"); // Replace with your next action
+              // await page.click(".w3-btn-next");
+              console.log("Shares Page");
+
+              await page.waitForSelector('input[name="isCommonSharesChecked"]');
+  
+  const isChecked = await page.$eval('input[name="isCommonSharesChecked"]', el => el.checked);
+  if (!isChecked) {
+    await page.click('input[name="isCommonSharesChecked"]');
+  }
+
+              await this.fillInputByName(page,"numberOfShares",jsonData.data.Payload.Stock_Information.Stock_Details.SI_No_Of_Shares);
 
               // Check the checkbox
+              await page.click(".w3-btn-next");
+
+                            await page.click(".w3-btn-next");
+
+
+              
+
+
+              await page.waitForSelector('input[type="radio"][name="dedSelectRadio"]');
+               
+              await page.evaluate(() => {
+                const checkbox = document.querySelector('input[type="radio"][name="dedSelectRadio"]');
+                if (!checkbox.checked) {
+                  checkbox.click();
+                }
+              });
+
+              
+              await page.click(".w3-btn-next");
+
 
               await page.waitForSelector('input[type="checkbox"][name="perjuryNoticeAffirmed"]');
               await page.evaluate(() => {
@@ -215,8 +225,8 @@ class ColoradoForLLC extends BaseFormHandler {
                 }
               });
 
-              
-              await page.click(".w3-btn-next");
+                            await page.click(".w3-btn-next");
+
               
              await page.waitForSelector('input[name="emailNotificationRadio"][value="N"]');
               await page.click('input[name="emailNotificationRadio"][value="N"]');
@@ -256,6 +266,6 @@ class ColoradoForLLC extends BaseFormHandler {
     }
 }
 
-module.exports = ColoradoForLLC;
+module.exports = ColoradoForCorp;
 
 

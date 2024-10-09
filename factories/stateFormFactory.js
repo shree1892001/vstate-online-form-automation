@@ -14,6 +14,13 @@ const NevadaForLLC = require('../handlers/NevadaForLLC');
 const GeorgiaForCorp = require('../handlers/GeorgiaForCorp');
 const NorthDakotaForLLC = require('../handlers/NorthDakotaForLLC'); 
 const NorthDakotaForCorp =require('../handlers/NorthDakotaForCorp');
+const ColoradoForLLC =require('../handlers/ColoradoForLLC');
+
+const ColoradoForCorp =require('../handlers/ColoradoForCorp');
+
+
+
+const PennsylvaniaForLLC =require('../handlers/PennsylvaniaForLLC')
 
 
 class StateFormFactory {
@@ -38,6 +45,14 @@ class StateFormFactory {
                 }
                 else if (entity_type == "CORP")
                     return ConnecticuitCorpHandler;
+                case "Pennsylvania":
+                    if (entity_type == "LLC"){
+                        const PennsylvaniaForLLCHandler = new PennsylvaniaForLLC();
+                        await PennsylvaniaForLLCHandler.PennsylvaniaForLLC(page, jsonData); // Call the form handler method
+                        return PennsylvaniaForLLCHandler;
+                    }
+                    else if (entity_type == "CORP")
+                        return ConnecticuitCorpHandler;
                 case "Hawaii":
                     if (entity_type == "LLC"){
                         const HawaiiForLLCHandler = new HawaiiForLLC();
@@ -48,6 +63,17 @@ class StateFormFactory {
                         const HawaiiForCorpHandler = new HawaiiForCorp();
                         await HawaiiForCorpHandler.HawaiiForCorp(page, jsonData); // Call the form handler method
                         return HawaiiForCorpHandler;
+                    }
+                    case "Colorado":
+                    if (entity_type == "LLC"){
+                        const ColoradoForLLCHandler = new ColoradoForLLC();
+                        await ColoradoForLLCHandler.ColoradoForLLC(page, jsonData); // Call the form handler method
+                        return ColoradoForLLCHandler;
+                    }
+                    else if (entity_type == "CORP"){
+                        const ColoradoForCorpHandler = new ColoradoForCorp();
+                        await ColoradoForCorpHandler.ColoradoForCorp(page, jsonData); // Call the form handler method
+                        return ColoradoForCorpHandler;
                     }
 
                     case "Georgia":
