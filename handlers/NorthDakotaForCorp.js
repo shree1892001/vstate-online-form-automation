@@ -214,7 +214,7 @@ await newPage.type('input[aria-label="Mailing address: ZIP code"]',jsonData.data
             await newPage.type('input[name="ADDR1"]', jsonData.data.Payload.Registered_Agent.RA_Address.RA_Address_Line1);
             // await newPage.type('input[name="ADDR2"]', data.address2 || '');
             await newPage.type('input[name="CITY"]', jsonData.data.Payload.Registered_Agent.RA_Address.RA_City);
-            await newPage.type('input[name="POSTAL_CODE"]', jsonData.data.Payload.Registered_Agent.RA_Address.RA_Postal_Code);
+            await newPage.type('input[name="POSTAL_CODE"]', jsonData.data.Payload.Registered_Agent.RA_Address.RA_Zip_Code);
 
             await newPage.waitForSelector('#field-address1-r1v8uILPZ_MAIL');
             await newPage.type('#field-address1-r1v8uILPZ_MAIL',jsonData.data.Payload.Principal_Address.PA_Address_Line1 );
@@ -227,7 +227,7 @@ await newPage.type('input[aria-label="Mailing address: ZIP code"]',jsonData.data
             await newPage.type('#field-addr-city-r1v8uILPZ_MAIL', jsonData.data.Payload.Registered_Agent.RA_Address.RA_City);
           
             await newPage.waitForSelector('#field-addr-zip-r1v8uILPZ_MAIL');
-            await newPage.type('#field-addr-zip-r1v8uILPZ_MAIL', jsonData.data.Payload.Registered_Agent.RA_Address.RA_Postal_Code);
+            await newPage.type('#field-addr-zip-r1v8uILPZ_MAIL', jsonData.data.Payload.Registered_Agent.RA_Address.RA_Zip_Code);
 
 
 
@@ -259,31 +259,51 @@ await newPage.type('input[aria-label="Mailing address: ZIP code"]',jsonData.data
                 nextButton.click()
             ]);           
             
-             await newPage.type('#field-H1_Uiexjb',jsonData.data.Payload.Registered_Agent.CD_Purpose);
+             await newPage.type('#field-H1_Uiexjb',jsonData.data.Payload.Purpose.CD_Business_Purpose_Details);
 
 
             await newPage.waitForSelector('button.btn.btn-raised.btn-primary.next.toolbar-button');
     
             await newPage.click('button.btn.btn-raised.btn-primary.next.toolbar-button');
 
+            await this.fillInputByName(newPage,"COMMON_SHARES",jsonData.data.Payload.Stock_Information.Stock_Details.SI_Shares_Par_Value);
+
             await this.clickButton(newPage,'button.form-button.add-row'); 
+            await this.fillInputByName(newPage,"NO_OF_SHARES",jsonData.data.Payload.Stock_Information.Stock_Details.SI_No_Of_Shares);
+            await this.fillInputByName(newPage,"PAR_VALUE",jsonData.data.Payload.Stock_Information.Stock_Details.SI_Shares_Par_Value);
+            const submitButton2 = await newPage.waitForSelector('.controls .btn-primary', {
+                visible: true,
+                timeout: 5000
+            });
+        
+            // Click the submit button and wait for navigation
+            await Promise.all([
+                this.randomSleep(10000,20000),
+                submitButton2.click()
+            ]);
+
+
+            await newPage.waitForSelector('button.btn.btn-raised.btn-primary.next.toolbar-button');
+    
+            await newPage.click('button.btn.btn-raised.btn-primary.next.toolbar-button');
 
 
 
 
-                    let fullName1=jsonData.data.Payload.Organizer_Information.Organizer_Details.Org_Name.split(" "); 
+
+                    let fullName1=jsonData.data.Payload.Incorporator_Information.Incorporator_Details.Inc_Name.split(" "); 
+                    await this.clickButton(newPage,'button.form-button.add-row'); 
 
            
                 await this.fillInputByName(newPage,"FIRST_NAME",fullName1[0]);
                 await this.fillInputByName(newPage,"LAST_NAME",fullName1[1]);
-                await this.fillInputByName(newPage,"ADDR1",jsonData.data.Payload.Organizer_Information.Org_Address.Org_Address_Line1);
-                await this.fillInputByName(newPage,"CITY",jsonData.data.Payload.Organizer_Information.Org_Address.Org_City);
+                await this.fillInputByName(newPage,"ADDR1",jsonData.data.Payload.Incorporator_Information.Inc_Address.Inc_Address_Line1);
+                await this.fillInputByName(newPage,"CITY",jsonData.data.Payload.Incorporator_Information.Inc_Address.Inc_City);
             
 
 
-                await this.fillInputByName(newPage,"POSTAL_CODE", jsonData.data.Payload.Organizer_Information.Org_Address.Org_Zip_Code);
-                await this.clickDropdown(newPage,"#field-addr-state-SJF64fm9m","ND");
-                await this.clickDropdown(newPage,"#field-addr-country-SJF64fm9m","United States");
+                await this.fillInputByName(newPage,"POSTAL_CODE", jsonData.data.Payload.Incorporator_Information.Inc_Address.Inc_Zip_Code);
+                await this.clickDropdown(newPage,"#field-addr-state-rkK7ieJsZ",jsonData.data.Payload.Incorporator_Information.Inc_Address.Inc_State);
 
                 const submitButton1 = await newPage.waitForSelector('.controls .btn-primary', {
                     visible: true,
@@ -323,27 +343,17 @@ await newPage.type('input[aria-label="Mailing address: ZIP code"]',jsonData.data
     
                 await newPage.click('button.btn.btn-raised.btn-primary.next.toolbar-button');
 
-                await newPage.evaluate(() => {
-                    const labelText = "One organizer will sign.";
-                    const labels = Array.from(document.querySelectorAll('.option-wrapper label'));
-                    const targetLabel = labels.find(label => label.textContent.trim() === labelText);
-                    
-                    if (targetLabel) {
-                      const radioButton = targetLabel.previousElementSibling;
-                      if (radioButton && radioButton.type === 'radio') {
-                        radioButton.click();
-                        return true;
-                      }
-                    }
-                    return false;
-                  });
-                  
-               
+                
+              
+                // Click the checkbox label after scrolling into view
+                await page.waitForSelector('input[name="SIGNATURE_AGREE_YN"]'); // Wait for the checkbox to appear
+                await page.click('input[name="SIGNATURE_AGREE_YN"]');
+                
+                const signatureInputSelector = `input[aria-label="Signature for ${jsonData.data.Payload.Incorporator_Information.Incorporator_Details.Inc_Name}"]`;
 
-                  await newPage.waitForSelector('input[placeholder="(Enter the full name of organizer)"]');
-
-                  await newPage.type('input[placeholder="(Enter the full name of organizer)"]', jsonData.data.Payload.Organizer_Information.Organizer_Details.Org_Name);
-                //   btn btn-primary btn-raised picker-button text-button undefined
+                await page.waitForSelector(signatureInputSelector);
+                await page.type(signatureInputSelector, jsonData.data.Payload.Incorporator_Information.Incorporator_Details.Inc_Name);
+              
 
                 await this.clickButton(newPage,'.btn.btn-primary.btn-raised');
 

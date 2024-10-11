@@ -15,8 +15,11 @@ const GeorgiaForCorp = require('../handlers/GeorgiaForCorp');
 const NorthDakotaForLLC = require('../handlers/NorthDakotaForLLC'); 
 const NorthDakotaForCorp =require('../handlers/NorthDakotaForCorp');
 const ColoradoForLLC =require('../handlers/ColoradoForLLC');
-
+const MissouriForLLC=require('../handlers/MissouriForLLC');
 const ColoradoForCorp =require('../handlers/ColoradoForCorp');
+
+const NewhampshireForLLC=require('../handlers/NewhampshireforLLC')
+
 
 
 
@@ -64,6 +67,17 @@ class StateFormFactory {
                         await HawaiiForCorpHandler.HawaiiForCorp(page, jsonData); // Call the form handler method
                         return HawaiiForCorpHandler;
                     }
+                    case "Missouri":
+                        if (entity_type == "LLC"){
+                            const MissouriForLLCHandler = new MissouriForLLC();
+                            await MissouriForLLCHandler.MissouriForLLC(page, jsonData); // Call the form handler method
+                            return MissouriForLLCHandler;
+                        }
+                        else if (entity_type == "CORP"){
+                            const MissouriForCorpHandler = new MissouriForCorp();
+                            await MissouriForCorpHandler.MissouriForCorp(page, jsonData); // Call the form handler method
+                            return MissouriForCorpHandler;
+                        }
                     case "Colorado":
                     if (entity_type == "LLC"){
                         const ColoradoForLLCHandler = new ColoradoForLLC();
@@ -75,6 +89,32 @@ class StateFormFactory {
                         await ColoradoForCorpHandler.ColoradoForCorp(page, jsonData); // Call the form handler method
                         return ColoradoForCorpHandler;
                     }
+
+
+
+                    case "Missouri":
+                        if (entity_type == "LLC"){
+                            const MissouriForLLCHandler = new MissouriForLLC();
+                            await MissouriForLLCHandler.MissouriForLLC(page, jsonData); // Call the form handler method
+                            return MissouriForLLCHandler;
+                        }
+                        else if (entity_type == "CORP"){
+                            const MissouriForCorpHandler = new MissouriForCorp();
+                            await MissouriForCorpHandler.MissouriForCorp(page, jsonData); // Call the form handler method
+                            return MissouriForCorpHandler;
+                        }
+                    case "Newhampshire":
+                    if (entity_type == "LLC"){
+                        const NewhampshireForLLCHandler = new NewhampshireForLLC();
+                        await NewhampshireForLLCHandler.NewhampshireForLLC(page, jsonData); // Call the form handler method
+                        return NewhampshireForLLCHandler;
+                    }
+                    else if (entity_type == "CORP"){
+                        const ColoradoForCorpHandler = new ColoradoForCorp();
+                        await ColoradoForCorpHandler.ColoradoForCorp(page, jsonData); // Call the form handler method
+                        return ColoradoForCorpHandler;
+                    }
+
 
                     case "Georgia":
                         if (entity_type == "LLC"){

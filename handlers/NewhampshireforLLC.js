@@ -1,0 +1,301 @@
+const BaseFormHandler = require('./BaseFormHandler');
+const logger = require('../utils/logger');
+const { timeout } = require('puppeteer');
+//const {selectRadioButtonByLabel,clickOnTitle,navigateToPage,addInput,clickButton  } = require('../utils/puppeteerUtils');
+
+class NewhampshireForLLC extends BaseFormHandler {
+    constructor() {
+        super();
+    }
+    async NewhampshireForLLC(page, jsonData) {
+        try {
+            logger.info('Navigating to New York form submission page...');
+            const url = jsonData.data.State.stateUrl;
+            await this.navigateToPage(page, url);
+           
+            const inputFields = [
+                { label: 'txtUsername', value: jsonData.data.State.filingWebsiteUsername },
+                         ];
+
+            await this.addInput(page, inputFields);
+            await page.waitForSelector('.btn-primary');
+    await page.click('.btn-primary');
+
+
+
+    await page.waitForSelector('.btn-primary');
+    await page.click('.btn-primary');
+
+          
+            
+            await page.waitForNavigation({ waitUntil: 'networkidle0', timeout: 12000 });
+            
+            await page.waitForSelector('a[href="BusinessEntity/NewBEFiling.aspx?FilingCategoryID=4&LOBTypeID=8"]'); // Wait for the link to appear
+await page.click('a[href="BusinessEntity/NewBEFiling.aspx?FilingCategoryID=4&LOBTypeID=8"]'); // Click the link
+
+     await page.waitForSelector("#ctl00_ctl00_ContentPlaceHolderMain_ContentPlaceHolderMainSingle_ppBENewFiling_rcBEDomesticity_Input");
+    await this.clickDropdown(page,"#ctl00_ctl00_ContentPlaceHolderMain_ContentPlaceHolderMainSingle_ppBENewFiling_rcBEDomesticity_Input","Domestic"); 
+
+   await page.click("#ctl00_ctl00_ContentPlaceHolderMain_ContentPlaceHolderMainSingle_ppBENewFiling_stdBtnCreateNewCorporation_divStandardButtonTop");
+
+   await this.randomSleep(10000,20000);
+
+
+   await page.waitForSelector('#ctl00_ctl00_ContentPlaceHolderMain_ContentPlaceHolderMainSingle_ppBEName_txtBEName');
+   await this.fillInputByName(page, 'ctl00$ctl00$ContentPlaceHolderMain$ContentPlaceHolderMainSingle$ppBEName$txtBEName',jsonData.data.Payload.Name.CD_Legal_Name)
+//    const inputFields1 = [
+//     { label: '#ctl00_ctl00_ContentPlaceHolderMain_ContentPlaceHolderMainSingle_ppBEName_txtBEName', value: jsonData.data.Payload.Name.CD_Legal_Name  },
+// ];
+// await this.addInput(page, inputFields1);
+
+ 
+            
+                await page.evaluate(() => {
+                    const dropdown = document.querySelector('#businessStructure');
+                    const option = Array.from(dropdown.options).find(opt => opt.text === "Limited Liability Company");
+            
+                    if (option) {
+                        dropdown.value = option.value;
+            
+                        // Dispatch a 'change' event to trigger any event listeners
+                        const event = new Event('change', { bubbles: true });
+                        dropdown.dispatchEvent(event);
+                    }
+                });
+            
+
+            await this.clickButton(page,'#continue')
+
+
+         
+            const input_company_name = [
+            { label: 'entityName', value: jsonData.data.Payload.Name.CD_Legal_Name },
+            
+            ];
+            await this.addInput(page, input_company_name)
+            // await this.selectRadioButtonByLabel(page,'The business name selected is unique across all registered businesses.  No error message is noted above.')
+            // await this.clickButton(page ,'.btn.btn-raised.btn-primary.next.toolbar-button')
+            // await this.selectRadioButtonByLabel(page, 'Perpetual / Ongoing');
+            await page.evaluate((jsonData) => {
+                const dropdown = document.querySelector('#initialPrincipalOffice\\.country');
+                const option = Array.from(dropdown.options).find(opt => opt.text === jsonData.data.Payload.Principal_Address.PA_Country.toUpperCase());
+        
+                if (option) {
+                    dropdown.value = option.value;
+        
+                    // Dispatch a 'change' event to trigger any event listeners
+                    const event = new Event('change', { bubbles: true });
+                    dropdown.dispatchEvent(event);
+                }
+            },jsonData);
+             let principle_address_fields = [
+                { label: 'initialPrincipalOffice\\.street1', value: jsonData.data.Payload.Principal_Address.PA_Address_Line1 },
+                { label: 'initialPrincipalOffice\\.city', value: jsonData.data.Payload.Principal_Address.PA_City },
+                // { label: 'initialPrincipalOffice\\.state', value: jsonData.data.Payload.Principal_Address.PA_State },
+                // { label: 'ZIP Code*', value: jsonData.data.Payload.Principal_Address.PA_Postal_Code },
+                ];
+
+            await this.addInput(page, principle_address_fields);
+            // { label: 'initialPrincipalOffice\\.state', value: jsonData.data.Payload.Principal_Address.PA_State },
+            //     { label: 'ZIP Code*', value: jsonData.data.Payload.Principal_Address.PA_Postal_Code },
+            await page.evaluate((jsonData) => {
+                const dropdown = document.querySelector('#initialPrincipalOffice\\.state');
+                const option = Array.from(dropdown.options).find(opt => opt.text === jsonData.data.Payload.Principal_Address.PA_State);
+        
+                if (option) {
+                    dropdown.value = option.value;
+        
+                    // Dispatch a 'change' event to trigger any event listeners
+                    const event = new Event('change', { bubbles: true });
+                    dropdown.dispatchEvent(event);
+                }
+            },jsonData);
+            let principle_address_fields1= [
+                
+                // { label: 'initialPrincipalOffice\\.state', value: jsonData.data.Payload.Principal_Address.PA_State },
+                { label: 'initialPrincipalOffice\\.zip', value: jsonData.data.Payload.Principal_Address.PA_Postal_Code },
+                ];
+                await this.addInput(page, principle_address_fields1);
+
+             await this.selectRadioButtonByLabel(page,'Individual')
+            const fullName = jsonData.data.Payload.Registered_Agent.RA_Name;
+            
+            const register_agent_fields = [
+                { label: 'registeredAgent\\.nameOfAgent', value: fullName},
+                {label:'registeredAgent\\.registeredOffice\\.street1',value: jsonData.data.Payload.Registered_Agent.RA_Address.RA_Address_Line1 },
+            { label: 'registeredAgent\\.registeredOffice\\.city', value: jsonData.data.Payload.Registered_Agent.RA_Address.RA_City },
+            // {label:'registeredAgent\\.registeredOffice\\.zip',value: jsonData.data.Payload.Registered_Agent.Address.RA_Postal_Code }
+               
+                ];
+            await this.addInput(page, register_agent_fields)
+            await page.evaluate((jsonData) => {
+                const dropdown = document.querySelector('#registeredAgent\\.registeredOffice\\.state');
+                const option = Array.from(dropdown.options).find(opt => opt.text === jsonData.data.Payload.Registered_Agent.RA_Address.RA_State);
+        
+                if (option) {
+                    dropdown.value = option.value;
+        
+                    // Dispatch a 'change' event to trigger any event listeners
+                    const event = new Event('change', { bubbles: true });
+                    dropdown.dispatchEvent(event);
+                }
+            },jsonData);
+            const registered_agent_fields1= [
+                
+                // { label: 'initialPrincipalOffice\\.state', value: jsonData.data.Payload.Principal_Address.PA_State },
+                { label: 'registeredAgent\\.registeredOffice\\.zip', value: jsonData.data.Payload.Registered_Agent.RA_Address.RA_Postal_Code},
+                ];
+                await this.addInput(page, registered_agent_fields1);
+
+
+                await page.waitForSelector('#organizers\\[0\\]\\.isSSN_true'); 
+
+                await page.click('#organizers\\[0\\]\\.isSSN_true');
+                
+                await page.evaluate((jsonData) => {
+                    const dropdown = document.querySelector('[id="organizers[0].address.country"]');
+                    const option = Array.from(dropdown.options).find(opt => opt.text === jsonData.data.Payload.Principal_Address.PA_Country.toUpperCase());
+            
+                    if (option) {
+                        dropdown.value = option.value;
+            
+                        // Dispatch a 'change' event to trigger any event listeners
+                        const event = new Event('change', { bubbles: true });
+                        dropdown.dispatchEvent(event);
+                    }
+                },jsonData);
+                await page.evaluate((jsonData) => {
+                    // Update the organizer's name
+                    const nameField = document.querySelector('[id="organizers[0].name"]');
+                    if (nameField) {
+                        nameField.value = jsonData.data.Payload.Organizer_Information.Organizer_Details.Org_Name;
+                        
+                        // Dispatch an input event to trigger any listeners
+                        const nameEvent = new Event('input', { bubbles: true });
+                        nameField.dispatchEvent(nameEvent);
+                    }
+                
+                    // Update the organizer's street address
+                    const streetField = document.querySelector('[id="organizers[0].address.street1"]');
+                    if (streetField) {
+                        streetField.value = jsonData.data.Payload.Organizer_Information.Org_Address.Org_Address_Line1;
+                        
+                        // Dispatch an input event to trigger any listeners
+                        const streetEvent = new Event('input', { bubbles: true });
+                        streetField.dispatchEvent(streetEvent);
+                    }
+                
+                    // Update the organizer's city
+                    const cityField = document.querySelector('[id="organizers[0].address.city"]');
+                    if (cityField) {
+                        cityField.value = jsonData.data.Payload.Organizer_Information.Org_Address.Org_City;
+                        
+                        // Dispatch an input event to trigger any listeners
+                        const cityEvent = new Event('input', { bubbles: true });
+                        cityField.dispatchEvent(cityEvent);
+                    }
+                
+                    // Update the country field (from the previous example)
+                    const dropdown = document.querySelector('[id="organizers[0].address.country"]');
+                    const option = Array.from(dropdown.options).find(opt => opt.text === jsonData.data.Payload.Organizer_Information.Org_Address.Org_Country.toUpperCase());
+                    
+                    if (option) {
+                        dropdown.value = option.value;
+                
+                        // Dispatch a 'change' event to trigger any event listeners
+                        const event = new Event('change', { bubbles: true });
+                        dropdown.dispatchEvent(event);
+                    }
+                
+                }, jsonData);
+                
+                await page.evaluate((jsonData) => {
+                    const dropdown = document.querySelector('[id="organizers[0].address.state"]');
+                    const option = Array.from(dropdown.options).find(opt => opt.text === jsonData.data.Payload.Organizer_Information.Org_Address.Org_State);
+            
+                    if (option) {
+                        dropdown.value = option.value;
+            
+                        // Dispatch a 'change' event to trigger any event listeners
+                        const event = new Event('change', { bubbles: true });
+                        dropdown.dispatchEvent(event);
+                    }
+                },jsonData);
+                await page.evaluate((jsonData) => {
+                    const dropdown = document.querySelector('[id="organizers[0].address.zip"]');
+                    if(dropdown){
+                        dropdown.value=jsonData.data.Payload.Organizer_Information.Org_Address.Org_Zip_Code;
+                    }
+            
+                   
+            
+                        
+                    
+                },jsonData);
+                
+                await page.click("#isPerpetual_true");
+
+                if(jsonData.data.Payload.Memeber_or_Manager_Details.Memeber_Or_Manager.Mom_Memeber_Or_Manager === "Memeber"){
+                        
+                  await page.click("#memberManaged_false");
+                  await page.type("#memberCount",jsonData.data.Payload.Memeber_or_Manager_Details.Memeber_Or_Manager.No_of_Memebers_Or_Manager.toString()); 
+                  await page.type('input[name="managersOrMembers[0].name"]', jsonData.data.Payload.Memeber_or_Manager_Details.Mom_Name);
+                  // await page.select('select[name="managersOrMembers[0].address.country"]', jsonData.data.Payload.Memeber_or_Manager_Details.Address.MM_Country);
+                  await page.type('input[name="managersOrMembers[0].address.street1"]', jsonData.data.Payload.Memeber_or_Manager_Details.Address.MM_Address_Line1);
+                  await page.type('input[name="managersOrMembers[0].address.street2"]', jsonData.data.Payload.Memeber_or_Manager_Details.Address.MM_Address_Line2);
+                  await page.type('input[name="managersOrMembers[0].address.city"]', jsonData.data.Payload.Memeber_or_Manager_Details.Address.MM_City);
+                  // await page.select('select[name="managersOrMembers[0].address.state"]', jsonData.data.Payload.Memeber_or_Manager_Details.Address.MM_State);
+
+                  await page.evaluate((jsonData) => {
+                    const dropdown = document.querySelector('[id="managersOrMembers[0].address.state"]');
+                    const option = Array.from(dropdown.options).find(opt => opt.text ===jsonData.data.Payload.Memeber_or_Manager_Details.Address.MM_State);
+            
+                    if (option) {
+                        dropdown.value = option.value;
+            
+                        // Dispatch a 'change' event to trigger any event listeners
+                        const event = new Event('change', { bubbles: true });
+                        dropdown.dispatchEvent(event);
+                    }
+                },jsonData);
+                  await page.type('input[name="managersOrMembers[0].address.zip"]', jsonData.data.Payload.Memeber_or_Manager_Details.Address.MM_Zip_Code);
+
+
+                }
+        
+
+                 await page.waitForSelector('#isEntity_false',{visible:true,timeout:12000});
+               await page.click('#isEntity_false');
+               const sign_field = [
+                { label: 'signature\\.name', value: jsonData.data.Payload.Organizer_Information.Organizer_Details.Org_Name},
+                {label : 'signature\\.signature' ,value: jsonData.data.Payload.Organizer_Information.Organizer_Details.Org_Name} 
+
+               ]; 
+
+               await this.addInput(page,sign_field); 
+               await page.waitForSelector("#treviewSubmit",{visible:true,timeout:12000}); 
+               await page.click("#treviewSubmit"); 
+
+               await this.randomSleep(1000000,1200000); 
+
+
+                
+
+               
+
+
+          
+
+
+            
+            
+        } catch (error) {
+            logger.error('Error in New Jersey LLC form handler:', error.stack);
+            throw new Error(`New Jersey LLC form submission failed: ${error.message}`);
+        }
+    }
+}
+
+module.exports = NewhampshireForLLC;
+
+
