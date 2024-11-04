@@ -338,7 +338,7 @@ class NewYorkForCORP extends BaseFormHandler {
 
                 const numSharesInput = document.querySelector('input[name="P3_NUM_SHARES"]');
                 if (numSharesInput) {
-                    numSharesInput.value = jsonData.data.Payload.Filer_Information.Stock_Information.SI_No_Of_Shares;
+                    numSharesInput.value = jsonData.data.Payload.Stock_Information.SI_No_Of_Shares;
                     numSharesInput.dispatchEvent(new Event('input', { bubbles: true }));
                 }
 
